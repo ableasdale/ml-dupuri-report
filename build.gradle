@@ -19,3 +19,7 @@ dependencies {
     compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
     compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.2.1'
+}
