@@ -236,19 +236,6 @@ public class Report {
                         }
                     } else {
                         LOG.info("Failed to process: " + uri + "(" + md5A + "/" + md5B + ") - deleting anyway");
-
-                        // QUICK hACK - delete second doc anyway...
-
-                        String deleteEval = "xdmp:eval('" + fnDeleteQ + "', (), <options xmlns=\"xdmp:eval\"><database>{xdmp:forest('" + forestB + "')}</database></options>)";
-                        LOG.info(deleteEval);
-                        Request deleteRequest = s.newAdhocQuery(deleteEval);
-
-                        try {
-                            ResultSequence rs2 = s.submitRequest(deleteRequest);
-                            LOG.info("Deleted URI: " + uri + rs2.asString());
-                        } catch (RequestException e) {
-                            LOG.error("Problem deleting document with URI: " + uri + " from forest " + forestB);
-                        }
                     }
                 } else {
                     LOG.info("NOT DELETING: " + uri + " - NO MD5 MATCH! " + md5A + "/" + md5B);
