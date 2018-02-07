@@ -233,6 +233,8 @@ public class Report {
                         } else {
                             LOG.info("Not fixed "+ uri + " please see error log for details");
                         }
+                    } else {
+                        LOG.info("Failed to process: "+uri +"("+md5A+"/"+md5B+")");
                     }
                 } else {
                     LOG.info("NOT DELETING: " + uri + " - NO MD5 MATCH! "+ md5A+"/"+md5B);
