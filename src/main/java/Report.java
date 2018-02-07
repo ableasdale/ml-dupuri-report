@@ -206,6 +206,7 @@ public class Report {
 
                 if (md5A!=null) {
                     LOG.info("*** We have an MD5 for the first document "+ md5A);
+                    LOG.info("*** We have an MD5 for the second document "+ md5B);
                     if (md5A.equals(md5B)) {
                         LOG.info("Safe to delete: "+ uri +" from "+ forestB + " as MD5s match "+ md5A+"/"+md5B);
                         // save the doc to disk
