@@ -223,16 +223,18 @@ public class Report {
                             String deleteEval = "xdmp:eval('" + fnDeleteQ + "', (), <options xmlns=\"xdmp:eval\"><database>{xdmp:forest('" + forestB + "')}</database></options>)";
                             LOG.info(deleteEval);
                             Request deleteRequest = s.newAdhocQuery(deleteEval);
-                            // TODO - make dry run configurable
-                            LOG.info("DRY RUN: This would delete " + uri + " from forest " + forestB);
-//                            try {
-//                                ResultSequence rs2 = s.submitRequest(deleteRequest);
-//                                LOG.info("Deleted URI: "+uri+rs2.asString());
-//                            } catch (RequestException e) {
-//                                LOG.error("Problem deleting document with URI: "+uri+" from forest "+forestB);
-//                            }
+                            if (Config.DRY_RUN) {
+                                LOG.info("DRY RUN: This would delete " + uri + " from forest " + forestB);
+                            } else {
+                                try {
+                                    ResultSequence rs2 = s.submitRequest(deleteRequest);
+                                    LOG.info("Deleted URI: " + uri + rs2.asString());
+                                } catch (RequestException e) {
+                                    LOG.error("Problem deleting document with URI: " + uri + " from forest " + forestB);
+                                }
+                            }
                         } else {
-                            LOG.info("Not fixed " + uri + " please see error log for details");
+                            LOG.info("No changes made for: " + uri + " please see error log for details");
                         }
                     } else {
                         LOG.info("Failed to process: " + uri + "(" + md5A + "/" + md5B + ") - deleting anyway");
