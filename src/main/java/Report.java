@@ -182,12 +182,14 @@ public class Report {
                String evalB = "xdmp:eval('"+fnDocQ+"', (), <options xmlns=\"xdmp:eval\"><database>{xdmp:forest('"+forestB+"')}</database></options>)";
                String md5A = null;
                String md5B = null;
+               String masterCandidate = null;
                String deletionCandidate = null;
 
                LOG.debug(evalA);
                Request request = s.newAdhocQuery(evalA);
                 try {
                     ResultSequence rs = s.submitRequest(request);
+                    masterCandidate = rs.asString();
                     md5A = DigestUtils.md5Hex( rs.asString() );
                     LOG.info("MD5 for document in "+forestA +" "+md5A);
                 } catch (RequestException e) {
@@ -205,8 +207,8 @@ public class Report {
                 }
 
                 if (md5A!=null) {
-                    LOG.info("*** We have an MD5 for the first document "+ md5A);
-                    LOG.info("*** We have an MD5 for the second document "+ md5B);
+                    LOG.info("*** We have an MD5 for the first document "+ md5A + masterCandidate);
+                    LOG.info("*** We have an MD5 for the second document "+ md5B + deletionCandidate);
                     if (md5A.equals(md5B)) {
                         LOG.info("Safe to delete: "+ uri +" from "+ forestB + " as MD5s match "+ md5A+"/"+md5B);
                         // save the doc to disk
