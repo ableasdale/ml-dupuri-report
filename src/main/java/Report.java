@@ -229,15 +229,15 @@ public class Report {
 //                                LOG.error("Problem deleting document with URI: "+uri+" from forest "+forestB);
 //                            }
                         } else {
-                            LOG.warn("Not fixed "+ uri + " please see error log for details");
+                            LOG.info("Not fixed "+ uri + " please see error log for details");
                         }
                     }
                 } else {
-                    LOG.warn("NOT DELETING: " + uri + " - NO MD5 MATCH! "+ md5A+"/"+md5B);
+                    LOG.info("NOT DELETING: " + uri + " - NO MD5 MATCH! "+ md5A+"/"+md5B);
                 }
 
             } else {
-                LOG.warn("*** ALERT --- CAN WE FIND OUT MORE ABOUT THIS DOC BEFORE WE DO ANYTHING! *** : "+uri);
+                LOG.info("*** ALERT --- CAN WE FIND OUT MORE ABOUT THIS DOC BEFORE WE DO ANYTHING! *** : "+uri);
             }
         }
     }
