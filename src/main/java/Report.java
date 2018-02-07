@@ -114,7 +114,7 @@ public class Report {
                 String item = i.asString();
                 String uri = item.substring(0,item.lastIndexOf("~"));
                 int frequency = Integer.parseInt(item.substring(item.lastIndexOf("~")+1));
-                LOG.info(item);
+                //LOG.info(item);
                 // TODO - this ASSUMES we are only looking for doc fragments - we're only searching for document URI instances this time.
                 if(frequency > 1 && ! documentMap.containsKey(uri)) {
                     LOG.debug("DUP URI FOUND: " + uri + frequency);
