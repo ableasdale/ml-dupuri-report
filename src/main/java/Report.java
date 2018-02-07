@@ -114,7 +114,7 @@ public class Report {
                 String item = i.asString();
                 String uri = item.substring(0,item.lastIndexOf("~"));
                 int frequency = Integer.parseInt(item.substring(item.lastIndexOf("~")+1));
-                //LOG.info(item);
+                // LOG.info(item);
                 // TODO - this ASSUMES we are only looking for doc fragments - we're only searching for document URI instances this time.
                 if(frequency > 1 && ! documentMap.containsKey(uri)) {
                     LOG.debug("DUP URI FOUND: " + uri + frequency);
@@ -220,25 +220,25 @@ public class Report {
                             String deleteEval = "xdmp:eval('"+fnDeleteQ+"', (), <options xmlns=\"xdmp:eval\"><database>{xdmp:forest('"+forestB+"')}</database></options>)";
                             LOG.info(deleteEval);
                             Request deleteRequest = s.newAdhocQuery(deleteEval);
-                            try {
-                                ResultSequence rs2 = s.submitRequest(deleteRequest);
-                                LOG.info("Deleted URI: "+uri+rs2.asString());
-                            } catch (RequestException e) {
-                                LOG.error("Problem deleting document with URI: "+uri+" from forest "+forestB);
-                            }
+                            // TODO - make dry run configurable
+                            LOG.info("DRY RUN: This would delete "+uri + " from forest "+forestB);
+//                            try {
+//                                ResultSequence rs2 = s.submitRequest(deleteRequest);
+//                                LOG.info("Deleted URI: "+uri+rs2.asString());
+//                            } catch (RequestException e) {
+//                                LOG.error("Problem deleting document with URI: "+uri+" from forest "+forestB);
+//                            }
                         } else {
                             LOG.warn("Not fixed "+ uri + " please see error log for details");
                         }
                     }
                 } else {
-                    LOG.warn("NOT DELETING: "+uri + " - NO MD5 MATCH! "+ md5A+"/"+md5B);
+                    LOG.warn("NOT DELETING: " + uri + " - NO MD5 MATCH! "+ md5A+"/"+md5B);
                 }
 
             } else {
                 LOG.warn("*** ALERT --- CAN WE FIND OUT MORE ABOUT THIS DOC BEFORE WE DO ANYTHING! *** : "+uri);
             }
-
         }
     }
-
 }
