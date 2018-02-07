@@ -4,4 +4,4 @@ out/
 .DS_Store
 build/
 report.log
-src/main/resources/backup/
+src/main/resources/backup/*

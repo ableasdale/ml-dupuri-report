@@ -189,7 +189,7 @@ public class Report {
                 try {
                     ResultSequence rs = s.submitRequest(request);
                     md5A = DigestUtils.md5Hex( rs.asString() );
-                    //LOG.info("MD5 for document in "+forestA +" "+md5A);
+                    LOG.info("MD5 for document in "+forestA +" "+md5A);
                 } catch (RequestException e) {
                     e.printStackTrace();
                 }
@@ -199,7 +199,7 @@ public class Report {
                     ResultSequence rs = s.submitRequest(request);
                     deletionCandidate = rs.asString();
                     md5B = DigestUtils.md5Hex( deletionCandidate );
-                    //LOG.info("MD5 for document in "+forestB +" "+md5B);
+                    LOG.info("MD5 for document in "+forestB +" "+md5B);
                 } catch (RequestException e) {
                     e.printStackTrace();
                 }
