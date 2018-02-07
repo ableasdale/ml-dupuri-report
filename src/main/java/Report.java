@@ -5,7 +5,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -112,11 +111,11 @@ public class Report {
 
                 ResultItem i = resultItemIterator.next();
                 String item = i.asString();
-                String uri = item.substring(0,item.lastIndexOf("~"));
-                int frequency = Integer.parseInt(item.substring(item.lastIndexOf("~")+1));
+                String uri = item.substring(0, item.lastIndexOf("~"));
+                int frequency = Integer.parseInt(item.substring(item.lastIndexOf("~") + 1));
                 // LOG.info(item);
                 // TODO - this ASSUMES we are only looking for doc fragments - we're only searching for document URI instances this time.
-                if(frequency > 1 && ! documentMap.containsKey(uri)) {
+                if (frequency > 1 && !documentMap.containsKey(uri)) {
                     LOG.debug("DUP URI FOUND: " + uri + frequency);
                     es.execute(new FragmentChecker(uri, frequency));
                 }
@@ -141,11 +140,11 @@ public class Report {
             LOG.debug(String.format("Working on: %s", s));
             this.uri = s;
             this.frequency = f;
-            this.fnDocQ = "fn:doc(\""+uri+"\")";
-            this.fnDeleteQ = "xdmp:document-delete(\""+uri+"\")";
+            this.fnDocQ = "fn:doc(\"" + uri + "\")";
+            this.fnDeleteQ = "xdmp:document-delete(\"" + uri + "\")";
         }
 
-        public void run(){
+        public void run() {
             documentMap.put(uri, frequency);
 
             Session s = csSource.newSession();
@@ -161,37 +160,37 @@ public class Report {
                 StringWriter sw = new StringWriter();
                 e.printStackTrace(new PrintWriter(sw));
                 String exceptionAsString = sw.toString().split(System.lineSeparator(), 2)[0];
-                if(exceptionAsString.contains("XDMP-DBDUPURI")){
+                if (exceptionAsString.contains("XDMP-DBDUPURI")) {
                     dealwithDoc(uri, s, exceptionAsString);
                 }
             }
         }
 
-        public void dealwithDoc(String uri, Session s, String exc){
+        public void dealwithDoc(String uri, Session s, String exc) {
             LOG.debug("Duplicate URI needs to be managed:" + uri);
             LOG.debug(exc);
             String[] bits = exc.split("--")[1].split(" ");
 
-            if(bits.length == 11){
-               String forestA = bits[6];
-               String forestB = bits[8];
-               String ts = bits[10];
-               LOG.info("Document "+ uri + " found in " + forestA +" and " + forestB + " at timestamp "+ ts);
+            if (bits.length == 11) {
+                String forestA = bits[6];
+                String forestB = bits[8];
+                String ts = bits[10];
+                LOG.info("Document " + uri + " found in " + forestA + " and " + forestB + " at timestamp " + ts);
 
-               String evalA = "xdmp:eval('"+fnDocQ+"', (), <options xmlns=\"xdmp:eval\"><database>{xdmp:forest('"+forestA+"')}</database></options>)";
-               String evalB = "xdmp:eval('"+fnDocQ+"', (), <options xmlns=\"xdmp:eval\"><database>{xdmp:forest('"+forestB+"')}</database></options>)";
-               String md5A = null;
-               String md5B = null;
-               String masterCandidate = null;
-               String deletionCandidate = null;
+                String evalA = "xdmp:eval('" + fnDocQ + "', (), <options xmlns=\"xdmp:eval\"><database>{xdmp:forest('" + forestA + "')}</database></options>)";
+                String evalB = "xdmp:eval('" + fnDocQ + "', (), <options xmlns=\"xdmp:eval\"><database>{xdmp:forest('" + forestB + "')}</database></options>)";
+                String md5A = null;
+                String md5B = null;
+                String masterCandidate = null;
+                String deletionCandidate = null;
 
-               LOG.debug(evalA);
-               Request request = s.newAdhocQuery(evalA);
+                LOG.debug(evalA);
+                Request request = s.newAdhocQuery(evalA);
                 try {
                     ResultSequence rs = s.submitRequest(request);
                     masterCandidate = rs.asString();
-                    md5A = DigestUtils.md5Hex( rs.asString() );
-                    LOG.info("MD5 for document in "+forestA +" "+md5A);
+                    md5A = DigestUtils.md5Hex(rs.asString());
+                    LOG.info("MD5 for document in " + forestA + " " + md5A);
                 } catch (RequestException e) {
                     e.printStackTrace();
                 }
@@ -200,32 +199,32 @@ public class Report {
                 try {
                     ResultSequence rs = s.submitRequest(request);
                     deletionCandidate = rs.asString();
-                    md5B = DigestUtils.md5Hex( deletionCandidate );
-                    LOG.info("MD5 for document in "+forestB +" "+md5B);
+                    md5B = DigestUtils.md5Hex(deletionCandidate);
+                    LOG.info("MD5 for document in " + forestB + " " + md5B);
                 } catch (RequestException e) {
                     e.printStackTrace();
                 }
 
-                if (md5A!=null) {
-                    LOG.info("*** We have an MD5 for the first document "+ md5A + masterCandidate);
-                    LOG.info("*** We have an MD5 for the second document "+ md5B + deletionCandidate);
+                if (md5A != null) {
+                    LOG.info("*** We have an MD5 for the first document " + md5A + masterCandidate);
+                    LOG.info("*** We have an MD5 for the second document " + md5B + deletionCandidate);
                     if (md5A.equals(md5B)) {
-                        LOG.info("Safe to delete: "+ uri +" from "+ forestB + " as MD5s match "+ md5A+"/"+md5B);
+                        LOG.info("Safe to delete: " + uri + " from " + forestB + " as MD5s match " + md5A + "/" + md5B);
                         // save the doc to disk
                         boolean backedup = false;
                         try {
-                            Files.write(Paths.get("src/main/resources/backup"+uri), deletionCandidate.getBytes());
+                            Files.write(Paths.get("src/main/resources/backup" + uri), deletionCandidate.getBytes());
                             backedup = true;
                         } catch (IOException e) {
-                            LOG.error("Error backing file up "+uri);
+                            LOG.error("Error backing file up " + uri);
                         }
-                        if(backedup) {
+                        if (backedup) {
                             // do the delete
-                            String deleteEval = "xdmp:eval('"+fnDeleteQ+"', (), <options xmlns=\"xdmp:eval\"><database>{xdmp:forest('"+forestB+"')}</database></options>)";
+                            String deleteEval = "xdmp:eval('" + fnDeleteQ + "', (), <options xmlns=\"xdmp:eval\"><database>{xdmp:forest('" + forestB + "')}</database></options>)";
                             LOG.info(deleteEval);
                             Request deleteRequest = s.newAdhocQuery(deleteEval);
                             // TODO - make dry run configurable
-                            LOG.info("DRY RUN: This would delete "+uri + " from forest "+forestB);
+                            LOG.info("DRY RUN: This would delete " + uri + " from forest " + forestB);
 //                            try {
 //                                ResultSequence rs2 = s.submitRequest(deleteRequest);
 //                                LOG.info("Deleted URI: "+uri+rs2.asString());
@@ -233,17 +232,30 @@ public class Report {
 //                                LOG.error("Problem deleting document with URI: "+uri+" from forest "+forestB);
 //                            }
                         } else {
-                            LOG.info("Not fixed "+ uri + " please see error log for details");
+                            LOG.info("Not fixed " + uri + " please see error log for details");
                         }
                     } else {
-                        LOG.info("Failed to process: "+uri +"("+md5A+"/"+md5B+")");
+                        LOG.info("Failed to process: " + uri + "(" + md5A + "/" + md5B + ") - deleting anyway");
+
+                        // QUICK hACK - delete second doc anyway...
+
+                        String deleteEval = "xdmp:eval('" + fnDeleteQ + "', (), <options xmlns=\"xdmp:eval\"><database>{xdmp:forest('" + forestB + "')}</database></options>)";
+                        LOG.info(deleteEval);
+                        Request deleteRequest = s.newAdhocQuery(deleteEval);
+
+                        try {
+                            ResultSequence rs2 = s.submitRequest(deleteRequest);
+                            LOG.info("Deleted URI: " + uri + rs2.asString());
+                        } catch (RequestException e) {
+                            LOG.error("Problem deleting document with URI: " + uri + " from forest " + forestB);
+                        }
                     }
                 } else {
-                    LOG.info("NOT DELETING: " + uri + " - NO MD5 MATCH! "+ md5A+"/"+md5B);
+                    LOG.info("NOT DELETING: " + uri + " - NO MD5 MATCH! " + md5A + "/" + md5B);
                 }
 
             } else {
-                LOG.info("*** ALERT --- CAN WE FIND OUT MORE ABOUT THIS DOC BEFORE WE DO ANYTHING! *** : "+uri);
+                LOG.info("*** ALERT --- CAN WE FIND OUT MORE ABOUT THIS DOC BEFORE WE DO ANYTHING! *** : " + uri);
             }
         }
     }
